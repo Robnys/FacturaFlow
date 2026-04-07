@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FacturaFlow - Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; background: #f8f9fa; }
+        .header { background: white; padding: 15px 20px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.5em; font-weight: bold; color: #2563eb; }
+        .btn { padding: 10px 20px; background: #2563eb; color: white; text-decoration: none; border-radius: 5px; border: none; cursor: pointer; font-size: 1em; }
+        .btn:hover { background: #1d4ed8; }
+        .btn-danger { background: #dc2626; }
+        .btn-danger:hover { background: #b91c1c; }
+        .btn-success { background: #10b981; }
+        .btn-success:hover { background: #059669; }
+        .container { display: flex; min-height: calc(100vh - 60px); }
+        .sidebar { width: 250px; background: white; border-right: 1px solid #ddd; padding: 20px 0; }
+        .sidebar-item { padding: 15px 20px; cursor: pointer; border-bottom: 1px solid #f0f0f0; }
+        .sidebar-item:hover { background: #f8f9fa; }
+        .sidebar-item.active { background: #e0f2fe; color: #2563eb; font-weight: bold; }
+        .main-content { flex: 1; padding: 20px; }
+        .section-title { font-size: 1.8em; margin-bottom: 20px; color: #2563eb; }
+        .filter-buttons { margin-bottom: 20px; }
+        .filter-btn { margin-right: 10px; margin-bottom: 10px; padding: 8px 16px; background: white; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; }
+        .filter-btn.active { background: #2563eb; color: white; }
+        .invoice-table { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .invoice-table table { width: 100%; border-collapse: collapse; }
+        .invoice-table th { background: #f8f9fa; padding: 15px; text-align: left; font-weight: bold; color: #2563eb; }
+        .invoice-table td { padding: 15px; border-bottom: 1px solid #f0f0f0; }
+        .invoice-table tr:hover { background: #f8f9fa; }
+        .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 0.9em; font-weight: bold; }
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-paid { background: #d1fae5; color: #065f46; }
+        .status-overdue { background: #fee2e2; color: #991b1b; }
+        .empty-state { text-align: center; padding: 60px 20px; color: #666; }
+        .form-container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; }
+        .form-group input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 1em; }
+        .form-actions { margin-top: 20px; }
+        .hidden { display: none; }
+        @media (max-width: 768px) {
+            .sidebar { width: 200px; }
+            .container { flex-direction: column; }
+            .sidebar { width: 100%; border-right: none; border-bottom: 1px solid #ddd; }
+            .invoice-table { overflow-x: auto; }
+            .filter-buttons { display: flex; flex-wrap: wrap; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">FacturaFlow</div>
+        <button class="btn btn-danger" onclick="logout()">Cerrar sesión</button>
+    </div>
+
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-item active" onclick="showSection('invoices')">Facturas</div>
+            <div class="sidebar-item" onclick="showSection('create')">Crear factura</div>
+            <div class="sidebar-item" onclick="showSection('clients')">Clientes</div>
+            <div class="sidebar-item" onclick="showSection('summary')">Resumen</div>
+        </div>
+
+        <div class="main-content">
+            <div id="invoices-section">
+                <h1 class="section-title">Facturas</h1>
+                <div class="filter-buttons">
+                    <span id="summaryLabels">Todas: 100%</span>
+                    <button class="filter-btn active" onclick="filterInvoices('all')">Todas</button>
+                    <button class="filter-btn" onclick="filterInvoices('pending')">Pendientes</button>
+                    <button class="filter-btn" onclick="filterInvoices('paid')">Pagadas</button>
+                    <button class="filter-btn" onclick="filterInvoices('overdue')">Vencidas</button>
+                </div>
+                <button class="btn" onclick="showSection('create')">Crear nueva factura</button>
+                <div class="invoice-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Número</th>
+                                <th>Cliente</th>
+                                <th>Fecha</th>
+                                <th>Importe</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="invoiceTableBody">
+                            <tr>
+                                <td colspan="6" class="empty-state">
+                                    <p>No hay facturas todavía.</p>
+                                    <p>Usa el botón "<strong>Crear factura</strong>" para empezar.</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="create-section" class="hidden">
+                <h1 class="section-title">Crear factura</h1>
+                <div class="form-container">
+                    <form id="invoiceForm">
+                        <div class="form-group">
+                            <label for="client">Cliente</label>
+                            <input type="text" id="client" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="concept">Concepto</label>
+                            <input type="text" id="concept" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="amount">Importe (EUR)</label>
+                            <input type="number" id="amount" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="dueDate">Fecha de vencimiento</label>
+                            <input type="date" id="dueDate" required>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn">Guardar factura</button>
+                            <button type="button" class="btn btn-danger" onclick="showSection('invoices')">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div id="clients-section" class="hidden">
+                <h1 class="section-title">Clientes</h1>
+                <div class="empty-state">
+                    <p>Gestión de clientes próximamente disponible.</p>
+                </div>
+            </div>
+
+            <div id="summary-section" class="hidden">
+                <h1 class="section-title">Resumen</h1>
+                <div class="empty-state">
+                    <p>Resumen de facturación próximamente disponible.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let invoices = [];
+        let currentFilter = 'all';
+        let invoiceCounter = 1;
+
+        function showSection(section) {
+            document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
+            document.querySelectorAll('[id$="-section"]').forEach(sec => sec.classList.add('hidden'));
+            
+            event.target.classList.add('active');
+            document.getElementById(section + '-section').classList.remove('hidden');
+        }
+
+        function filterInvoices(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            renderInvoices();
+        }
+
+        function renderInvoices() {
+            const tbody = document.getElementById('invoiceTableBody');
+            let filteredInvoices = invoices;
+
+            if (currentFilter !== 'all') {
+                filteredInvoices = invoices.filter(inv => inv.status === currentFilter);
+            }
+
+            const total = filteredInvoices.length;
+            const totalPending = filteredInvoices.filter(inv => inv.status === 'pending').length;
+            const totalPaid = filteredInvoices.filter(inv => inv.status === 'paid').length;
+            const totalOverdue = filteredInvoices.filter(inv => inv.status === 'overdue').length;
+
+            document.getElementById('summaryLabels').innerHTML =
+                '<strong>[' +
+                totalPending + '] pendientes,</strong> ' +
+                '<strong>[' +
+                totalPaid + '] pagadas,</strong> ' +
+                '<strong>[' +
+                totalOverdue + '] vencidas</strong>';
+
+            if (filteredInvoices.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No hay facturas que mostrar.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filteredInvoices.map(invoice => `
+                <tr>
+                    <td>#${invoice.number}</td>
+                    <td>${invoice.client}</td>
+                    <td>${invoice.date}</td>
+                    <td>EUR ${invoice.amount.toFixed(2)}</td>
+                    <td><span class="status-badge status-${invoice.status}">${getStatusText(invoice.status)}</span></td>
+                    <td>
+                        ${invoice.status === 'pending' ? `<button class="btn btn-success" onclick="markAsPaid(${invoice.id})">Marcar pagada</button>` : ''}
+                        <button class="btn btn-danger" onclick="deleteInvoice(${invoice.id})">Eliminar</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function getStatusText(status) {
+            const statusMap = {
+                'pending': 'Pendiente',
+                'paid': 'Pagada',
+                'overdue': 'Vencida'
+            };
+            return statusMap[status] || status;
+        }
+
+        function markAsPaid(id) {
+            const invoice = invoices.find(inv => inv.id === id);
+            if (invoice) {
+                invoice.status = 'paid';
+                renderInvoices();
+            }
+        }
+
+        function deleteInvoice(id) {
+            invoices = invoices.filter(inv => inv.id !== id);
+            renderInvoices();
+        }
+
+        function logout() {
+            console.log('cerrando sesión');
+            alert('Cerrando sesión...');
+            window.location = 'index.html';
+        }
+
+        document.getElementById('invoiceForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const invoice = {
+                id: Date.now(),
+                number: invoiceCounter++,
+                client: document.getElementById('client').value,
+                concept: document.getElementById('concept').value,
+                amount: parseFloat(document.getElementById('amount').value),
+                date: new Date().toLocaleDateString('es-ES'),
+                dueDate: document.getElementById('dueDate').value,
+                status: 'pending'
+            };
+
+            invoices.push(invoice);
+            
+            document.getElementById('invoiceForm').reset();
+            showSection('invoices');
+            renderInvoices();
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            renderInvoices();
+        });
+    </script>
+</body>
+</html>
