@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FacturaFlow - Facturación Simple</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; background: #f8f9fa; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; padding: 60px 0; background: white; border-radius: 10px; margin-bottom: 40px; }
+        .header h1 { font-size: 3em; color: #2563eb; margin-bottom: 20px; }
+        .header p { font-size: 1.2em; color: #666; margin-bottom: 30px; }
+        .btn { display: inline-block; padding: 15px 30px; background: #2563eb; color: white; text-decoration: none; border-radius: 5px; font-size: 1.1em; border: none; cursor: pointer; transition: background 0.3s; }
+        .btn:hover { background: #1d4ed8; }
+        .benefits { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-bottom: 60px; }
+        .benefit-card { background: white; padding: 30px; border-radius: 10px; text-align: center; }
+        .benefit-card h3 { color: #2563eb; margin-bottom: 15px; font-size: 1.4em; }
+        .form-section { background: white; padding: 40px; border-radius: 10px; text-align: center; margin-bottom: 60px; }
+        .form-section h2 { margin-bottom: 30px; color: #2563eb; }
+        .form-group { margin-bottom: 20px; }
+        .form-group input { width: 100%; max-width: 400px; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 1em; }
+        .testimonials { background: white; padding: 40px; border-radius: 10px; margin-bottom: 60px; }
+        .testimonials h2 { text-align: center; margin-bottom: 30px; color: #2563eb; }
+        .testimonial { margin-bottom: 25px; padding: 20px; background: #f8f9fa; border-radius: 8px; }
+        .testimonial strong { color: #2563eb; }
+        .faq { background: white; padding: 40px; border-radius: 10px; }
+        .faq h2 { text-align: center; margin-bottom: 30px; color: #2563eb; }
+        .faq-item { margin-bottom: 20px; padding: 20px; background: #f8f9fa; border-radius: 8px; }
+        .faq-item h3 { color: #2563eb; margin-bottom: 10px; }
+        .message { padding: 15px; background: #10b981; color: white; border-radius: 5px; margin: 20px 0; display: none; }
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2em; }
+            .container { padding: 10px; }
+            .form-section, .testimonials, .faq { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>FacturaFlow</h1>
+            <p>Facturación simple y rápida para tu negocio</p>
+            <a href="dashboard.html" class="btn">Probar gratis</a>
+        </div>
+
+        <div class="benefits">
+            <div class="benefit-card">
+                <h3> ahorra tiempo</h3>
+                <p>Crea facturas en menos de 2 minutos. Olvídate de hojas de cálculo complicadas.</p>
+            </div>
+            <div class="benefit-card">
+                <h3>Reduce errores</h3>
+                <p>Cálculos automáticos y plantillas profesionales. Sin más fórmulas incorrectas.</p>
+            </div>
+            <div class="benefit-card">
+                <h3>Envío automático</h3>
+                <p>Envía facturas por email directamente. Tus clientes las reciben al instante.</p>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2>Comienza tu prueba gratuita</h2>
+            <div id="successMessage" class="message">
+                <p>Prueba activada, carga lista. Redirigiendo a tu dashboard...</p>
+            </div>
+            <form id="trialForm">
+                <div class="form-group">
+                    <input type="text" id="name" placeholder="Tu nombre" required>
+                </div>
+                <div class="form-group">
+                    <input type="email" id="email" placeholder="Tu email" required>
+                </div>
+                <button type="submit" class="btn">Enviar y comenzar</button>
+                <p style="margin-top: 15px; font-size: 0.9em; color: #666;">Al enviar aceptas recibir novedades por email sobre FacturaFlow.</p>
+            </form>
+        </div>
+
+        <div class="testimonials">
+            <h2>Lo que dicen nuestros clientes</h2>
+            <div class="testimonial">
+                <p>"Simplificó la facturación de mi pequeño negocio y ahorré muchas horas al mes. Ahora puedo concentrarme en lo que realmente importa."</p>
+                <strong>- Cafetería Alisios</strong>
+            </div>
+            <div class="testimonial">
+                <p>"Antes perdía horas con Excel; ahora es todo en un solo lugar. Mis clientes pagan más rápido y yo tengo mejor control."</p>
+                <strong>- Talleres Martínez</strong>
+            </div>
+            <div class="testimonial">
+                <p>"La herramienta más fácil que he usado. En 5 minutos ya estaba creando facturas profesionales. ¡Recomendado!"</p>
+                <strong>- Inmobiliaria Sol Norte</strong>
+            </div>
+        </div>
+
+        <div class="faq">
+            <h2>Preguntas frecuentes</h2>
+            <div class="faq-item">
+                <h3>¿Es realmente gratis la prueba?</h3>
+                <p>Sí, tienes 30 días completos sin coste alguno. Sin necesidad de tarjeta de crédito.</p>
+            </div>
+            <div class="faq-item">
+                <h3>¿Puedo exportar mis facturas?</h3>
+                <p>Claro, puedes descargar todas tus facturas en formato PDF o Excel cuando lo necesites.</p>
+            </div>
+            <div class="faq-item">
+                <h3>¿Funciona en móviles?</h3>
+                <p>Sí, FacturaFlow funciona perfectamente en cualquier dispositivo: móvil, tablet o computadora.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('trialForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            
+            console.log('prueba enviada', { name, email });
+            alert('Gracias, tu prueba está lista');
+            
+            document.getElementById('successMessage').style.display = 'block';
+            
+            setTimeout(function() {
+                window.location = 'dashboard.html';
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
